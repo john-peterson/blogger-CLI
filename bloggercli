@@ -19,97 +19,97 @@ labels = 'mac os x, blogger, CLI'
 
 # At a minimum we must include the file containing our blog post
 if(len(sys.argv) < 2):
-    print("Usage: %s -f \"Filename\" [-t] \"My Title\" [-l] \"label,label\" [--publish]" % sys.argv[0])
-    print("Post's are uploaded as drafts by default. Use --publish if you want to "
-            "publish immediatly\n")
-    sys.exit()
+	print("Usage: %s -f \"Filename\" [-t] \"My Title\" [-l] \"label,label\" [--publish]" % sys.argv[0])
+	print("Post's are uploaded as drafts by default. Use --publish if you want to "
+			"publish immediatly\n")
+	sys.exit()
  
 # Handle arguments
 myopts, args = getopt.getopt(sys.argv[1:], "f:t:l:p:", ['publish'])
 for o, a in myopts:
-    if o == '-f':
-        postfile = a
-    elif o == '--publish':
-        isDraft = False
-    elif o == '-t':
-        title = a
-    elif o == '-l':
-        labels = a
-    elif o == '-p'
-        postId = a
+	if o == '-f':
+		postfile = a
+	elif o == '--publish':
+		isDraft = False
+	elif o == '-t':
+		title = a
+	elif o == '-l':
+		labels = a
+	elif o == '-p'
+		postId = a
 
 # If we want to publish we must supply a title
 if(isDraft == False and title == 'Minha nova postagem'):
-    print("You must provide a title if you want to publish")
-    sys.exit()
+	print("You must provide a title if you want to publish")
+	sys.exit()
 
 
 # If there is no userkey authenticate with Google and save the key.
 if(os.path.exists('userkey') == False):
-    flow = client.flow_from_clientsecrets('client_id.json',
-            scope='https://www.googleapis.com/auth/blogger',
-            redirect_uri='urn:ietf:wg:oauth:2.0:oob'
-            )
+	flow = client.flow_from_clientsecrets('client_id.json',
+			scope='https://www.googleapis.com/auth/blogger',
+			redirect_uri='urn:ietf:wg:oauth:2.0:oob'
+			)
 
-    auth_uri = flow.step1_get_authorize_url()
-    webbrowser.open_new(auth_uri)
-    auth_code = raw_input('Enter the auth code: ')
-    credentials = flow.step2_exchange(auth_code)
-    http_auth = credentials.authorize(httplib2.Http())
+	auth_uri = flow.step1_get_authorize_url()
+	webbrowser.open_new(auth_uri)
+	auth_code = raw_input('Enter the auth code: ')
+	credentials = flow.step2_exchange(auth_code)
+	http_auth = credentials.authorize(httplib2.Http())
 
-    # Store the credentials
-    storage = Storage('userkey')
-    storage.put(credentials)
+	# Store the credentials
+	storage = Storage('userkey')
+	storage.put(credentials)
 
 # If the userkey already exists use it.
 else:
-    storage = Storage('userkey')
-    credentials = storage.get()
-    http_auth = credentials.authorize(httplib2.Http())
+	storage = Storage('userkey')
+	credentials = storage.get()
+	http_auth = credentials.authorize(httplib2.Http())
 
 # Initialize the blogger service and get the blog
 blogger_service = build('blogger', 'v3', http=http_auth)
 
 # Open file for reading
 try:
-    f = open(postfile, 'r')
+	f = open(postfile, 'r')
 except:
-    print("Error open file. Aborting...")
-    sys.exit()
+	print("Error open file. Aborting...")
+	sys.exit()
 
 #build a label list
 labels_list = labels.split(',')
 
 #build body object
 body = {
-        "content": f.read(),
-        "title": title,
-        "labels": labels_list
-        }
+		"content": f.read(),
+		"title": title,
+		"labels": labels_list
+		}
 
 if(os.path.exists('postId') == False):
 
 #Insert the post
-    try:
-        post = blogger_service.posts().insert(blogId=blogId, body=body, isDraft=isDraft).execute()
-    except:
-        print("Something went wrong uploading this post")
-        sys.exit()
+	try:
+		post = blogger_service.posts().insert(blogId=blogId, body=body, isDraft=isDraft).execute()
+	except:
+		print("Something went wrong uploading this post")
+		sys.exit()
 
-    print("Title: %s" % post['title'])
-    print("Is Draft: %s" % isDraft)
-    print("Post ID: %s" % post['id'])
-    if(isDraft == False):
-        print("URL: %s" % post['url'])
-    print("Labels: %s" % post['labels'])
+	print("Title: %s" % post['title'])
+	print("Is Draft: %s" % isDraft)
+	print("Post ID: %s" % post['id'])
+	if(isDraft == False):
+		print("URL: %s" % post['url'])
+	print("Labels: %s" % post['labels'])
 
 else:
-    try:
-        post = service.posts().update(blogId=blogId, postId=postId, body=body, publish=True).execute()
-    except:
-        print("Something went wrong updating this post")
-        sys.exit()
-        
-    print("Title: %s" % post['title'])
-    print("URL: %s" % post['url'])
-    print("Labels: %s" % post['labels'])    
+	try:
+		post = service.posts().update(blogId=blogId, postId=postId, body=body, publish=True).execute()
+	except:
+		print("Something went wrong updating this post")
+		sys.exit()
+		
+	print("Title: %s" % post['title'])
+	print("URL: %s" % post['url'])
+	print("Labels: %s" % post['labels'])	
