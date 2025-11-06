@@ -1,3 +1,36 @@
+updates by john-peterson 
+
+first test your key before spending all day on this confusion 
+
+~~~
+gcloud services enable blogger
+
+a=https://www.googleapis.com/auth; gcloud auth application-default login --scopes=$a/cloud-platform,$a/blogger --no-launch-browser --project abc 
+
+curl -X GET \
+-H "Authorization: Bearer $(gcloud auth application-default print-access-token)" \
+-H "x-goog-user-project: $(gcloud config get project)" \
+https://www.googleapis.com/blogger/v3/users/self
+~~~
+
+now the python API is authorised you don't need anything more 
+
+I made the command similar to gh command 
+
+~~~
+pandoc -o blog.html --template template --toc abc
+bloggercli create
+bloggercli edit 1 
+bloggercli list
+bloggercli publish 1
+bloggercli view 1
+~~~
+
+
+~~~
+
+---
+
 #Blogger CLI (Cranky Blogger CLI)
 
 This script interacts with the Google Blogger API V3. Its purpose is to enable
